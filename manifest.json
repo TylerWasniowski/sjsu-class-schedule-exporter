@@ -1,12 +1,18 @@
 {
-  "name": "Getting Started Example",
+  "name": "SJSU Class Schedule Exporter",
   "version": "1.0",
-  "description": "Build an Extension!",
+  "description": "Exports SJSU class schedule to Google Calendar.",
   "permissions": ["activeTab", "declarativeContent", "storage"],
   "background": {
     "scripts": ["background.js", "options.js"],
     "persistent": false
   },
+  "content_scripts": [
+    {
+      "matches": ["https://cmsweb.cms.sjsu.edu/*"],
+      "js": ["content.js"]
+    }
+  ],
   "page_action": {
     "default_popup": "popup.html",
     "default_icon": {

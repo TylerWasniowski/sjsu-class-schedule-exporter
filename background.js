@@ -4,11 +4,14 @@
 
 'use strict';
 
+const host = "cmsweb.cms.sjsu.edu";
+// const host = "";
+
 chrome.runtime.onInstalled.addListener(() => {
   chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
     chrome.declarativeContent.onPageChanged.addRules([{
       conditions: [new chrome.declarativeContent.PageStateMatcher({
-        pageUrl: {hostEquals: 'cmsweb.cms.sjsu.edu'},
+        pageUrl: {hostEquals: host},
       })
       ],
           actions: [new chrome.declarativeContent.ShowPageAction()]

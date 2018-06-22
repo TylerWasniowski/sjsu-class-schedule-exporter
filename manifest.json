@@ -1,7 +1,7 @@
 {
-  "name": "SJSU Class Schedule Exporter",
+  "name": "SJSU Schedule Exporter",
   "version": "1.0",
-  "description": "Exports SJSU class schedule to Google Calendar.",
+  "description": "Exports SJSU class and final schedule to Google Calendar.",
   "permissions": ["activeTab", "declarativeContent", "storage"],
   "background": {
     "scripts": ["background.js", "options.js"],

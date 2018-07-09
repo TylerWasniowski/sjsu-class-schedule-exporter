@@ -1,64 +1,65 @@
 (() => {
-    const importClassesText = "Import Classes";
-    const importClassesButtonId = "importClassesButton";
+    const EXPORT_CLASSES_BUTTON_TEXT = "Export Classes";
+    const EXPORT_CLASSES_BUTTON_ID = "exportClassesButton";
 
 
-    const pageContainerSelector = "#win1divPAGECONTAINER";
+    const PAGE_CONTAINER_SELECTOR = "#win1divPAGECONTAINER";
     
-    const classesContainerSelector = "div[id ^= 'win1divSTDNT_ENRL_SSV2\\24 ']";
+    const CLASSES_CONTAINER_SELECTOR = "div[id ^= 'win1divSTDNT_ENRL_SSV2\\24 ']";
 
-    const classContainerSelector = "div[id ^= 'win1divDERIVED_REGFRM1_DESCR20\\24 ']";
-    const classNameSelector = "table > tbody > tr > td";
+    const CLASS_CONTAINER_SELECTOR = "div[id ^= 'win1divDERIVED_REGFRM1_DESCR20\\24 ']";
+    const CLASS_NAME_SELECTOR = "table > tbody > tr > td";
 
-    const componentSelector = "table[id ^= 'CLASS_MTG_VW\\24 scroll\\24 '] > tbody > tr > td > table > tbody > tr";
-    const componentNameSelector = "div[id ^= 'win1divMTG_COMP\\24 '] > span";
-    const daysAndTimesSelector = "div[id ^= 'win1divMTG_SCHED\\24 '] > span";
-    const roomSelector = "div[id ^= 'win1divMTG_LOC\\24 '] > span";
-    const startAndEndDatesSelector = "div[id ^= 'win1divMTG_DATES\\24 '] > span";
+    const COMPONENT_SELECTOR = "table[id ^= 'CLASS_MTG_VW\\24 scroll\\24 '] > tbody > tr > td > table > tbody > tr";
+    const COMPONENT_NAME_SELECTOR = "div[id ^= 'win1divMTG_COMP\\24 '] > span";
+    const DAYS_AND_TIMES_SELECTOR = "div[id ^= 'win1divMTG_SCHED\\24 '] > span";
+    const ROOM_SELECTOR = "div[id ^= 'win1divMTG_LOC\\24 '] > span";
+    const START_AND_END_DATES_SELECTOR = "div[id ^= 'win1divMTG_DATES\\24 '] > span";
 
 
-    attachButton();    
+    attachButton();
     // Attach button again if page changes.
     const observer = new MutationObserver(attachButton);
     observer.observe(
-        document.querySelector(pageContainerSelector),
+        document.querySelector(PAGE_CONTAINER_SELECTOR),
         { childList: true }
     );
 
     function attachButton() {
-        if (!document.querySelector(classContainerSelector))
+        if (!document.querySelector(CLASS_CONTAINER_SELECTOR))
             return;
         
-        const classesContainer = document.querySelector(classesContainerSelector);
+        const classesContainer = document.querySelector(CLASSES_CONTAINER_SELECTOR);
 
-        const importClassesButton = document.createElement("button");
-        const importClassesTextNode = document.createTextNode(importClassesText);
+        const exportClassesButton = document.createElement("button");
+        const exportClassesTextNode = document.createTextNode(EXPORT_CLASSES_BUTTON_TEXT);
 
-        importClassesButton.append(importClassesTextNode);
-        importClassesButton.id = importClassesButtonId;
+        exportClassesButton.append(exportClassesTextNode);
+        exportClassesButton.id = EXPORT_CLASSES_BUTTON_ID;
 
-        importClassesButton.onclick = () => {
-            console.log(findClasses());
+        // Returns false to prevent refresh.
+        exportClassesButton.onclick = () => {
+            exportClasses();
             return false;
         };
 
-        classesContainer.prepend(importClassesButton);
+        classesContainer.prepend(exportClassesButton);
     }
 
     function findClasses() {
         let classes = [];
 
-        document.querySelectorAll(classContainerSelector)
+        document.querySelectorAll(CLASS_CONTAINER_SELECTOR)
         .forEach(
             (classContainer) => {
-                const className = classContainer.querySelector(classNameSelector).innerText;
+                const className = classContainer.querySelector(CLASS_NAME_SELECTOR).innerText;
                 
-                [].slice.call(classContainer.querySelectorAll(componentSelector), 1)
+                [].slice.call(classContainer.querySelectorAll(COMPONENT_SELECTOR), 1)
                 .forEach(
                     (component) => {
-                        const componentName = component.querySelector(componentNameSelector).innerText;
+                        const componentName = component.querySelector(COMPONENT_NAME_SELECTOR).innerText;
                         
-                        const daysAndTimesArray = component.querySelector(daysAndTimesSelector)
+                        const daysAndTimesArray = component.querySelector(DAYS_AND_TIMES_SELECTOR)
                             .innerText
                             .split(" ");
                         const daysString = daysAndTimesArray[0];
@@ -75,11 +76,12 @@
                             saturday: daysString.includes("Sa")
                         }
 
-                        const room = component.querySelector(roomSelector).innerText;
+                        const room = component.querySelector(ROOM_SELECTOR).innerText;
 
-                        const startAndEndDatesArray = component.querySelector(startAndEndDatesSelector)
-                            .innerText
-                            .split(" - ");
+                        const startAndEndDatesArray =
+                            component.querySelector(START_AND_END_DATES_SELECTOR)
+                                .innerText
+                                .split(" - ");
                         const startDateString = startAndEndDatesArray[0];
                         const endDateString = startAndEndDatesArray[1];
 
@@ -100,5 +102,17 @@
         )});
 
         return classes;
+    }
+
+    // Sends the classes to extension background for exporting.
+    function exportClasses() {
+        console.log("Sending export message with classes:");
+        console.log(findClasses());
+
+        chrome.runtime.sendMessage(
+            {classes: findClasses()},
+            (response) => {
+                console.log(response);
+        });
     }
 })();

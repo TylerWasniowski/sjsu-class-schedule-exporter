@@ -4,24 +4,11 @@
 
 'use strict';
 
-const classScheduleUrl = "https://cmsweb.cms.sjsu.edu/psc/CSJPRD_1/EMPLOYEE/SA/c/SA_LEARNER_SERVICES.SSR_SSENRL_LIST.GBL";
-
-let importClassesButton = document.getElementById('importClassesButton');
-
-importClassesButton.onclick = (element) => {
-  let color = element.target.value;
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    chrome.tabs.executeScript(
-        tabs[0].id,
-        {
-          file: 'content.js'
-        });
-  });
-};
+const CLASS_SCHEDULE_URL = "https://cmsweb.cms.sjsu.edu/psc/CSJPRD_1/EMPLOYEE/SA/c/SA_LEARNER_SERVICES.SSR_SSENRL_LIST.GBL";
 
 let classScheduleButton = document.getElementById('classScheduleButton');
 classScheduleButton.onclick = (element) => {
   chrome.tabs.query({'active': true}, (tabs) => {
-    chrome.tabs.update(tabs[0].id, {url: classScheduleUrl});
+    chrome.tabs.update(tabs[0].id, {url: CLASS_SCHEDULE_URL});
   });
 };

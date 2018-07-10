@@ -34,12 +34,6 @@ chrome.runtime.onMessage.addListener(
       sendResponse('no_classes');
   });
 
-function createClassEvent(calendar, classObj) {
-  console.log('create event function');
-  console.log(classObj);
-  // makeRequest('', );
-}
-
 function exportClasses(classes) {
   console.log(classes);
   ensureCalendar((calendar) => {
@@ -49,11 +43,47 @@ function exportClasses(classes) {
   });
 }
 
+function createClassEvent(calendar, classObj) {
+  console.log('create event function');
+  console.log(classObj);
+
+  const eventData = {
+    summary: classObj.className + " - " + classObj.componentName,
+    description: 
+      "Instructor: " + classObj.instructor + "\n" +
+      "Section: " + classObj.section + "\n" +
+      "Class Number: " + classObj.classNumber
+    ,
+    start: {
+      dateTime: '',
+      timeZone: 'PST'
+    },
+    end: {
+      dateTime: '',
+      timeZone: 'PST'
+    },
+    recurrence: [
+
+    ],
+    location: classObj.room
+  };
+
+  console.log(eventData);
+
+  // makeRequest('POST',
+  //   '/calendars/' + calendar.id + '/events',
+  //   JSON.stringify(eventData),
+  //   (response) => {
+  //     alert(response);
+  //   });
+}
+
 // Creates the Calendar if it does not exist, calls callback with calendar
 function ensureCalendar(callback) {
   // Check if calendar exists
   makeRequest('GET', '/users/me/calendarList', null, (response) => {
     response = JSON.parse(response);
+    console.log('Calendar list');
     console.log(response);
 
     if (!response.items) {

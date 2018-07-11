@@ -17,7 +17,7 @@
     const DAYS_AND_TIMES_SELECTOR = "div[id ^= 'win1divMTG_SCHED\\24 '] > span";
     const ROOM_SELECTOR = "div[id ^= 'win1divMTG_LOC\\24 '] > span";
     const INSTRUCTOR_SELECTOR = "div[id ^= 'win1divDERIVED_CLS_DTL_SSR_INSTR_LONG\\24 '] > span";
-    const START_AND_END_DATES_SELECTOR = "div[id ^= 'win1divMTG_DATES\\24 '] > span";
+    const FIRST_AND_LAST_DATES_SELECTOR = "div[id ^= 'win1divMTG_DATES\\24 '] > span";
 
 
     attachButton();
@@ -66,13 +66,21 @@
 
                         const section = component.querySelector(SECTION_SELECTOR).innerText;
 
-                        const daysAndTimesArray = component.querySelector(DAYS_AND_TIMES_SELECTOR)
+                        const daysAndTimesArray = component
+                            .querySelector(DAYS_AND_TIMES_SELECTOR)
                             .innerText
                             .split(" ");
                         const daysString = daysAndTimesArray[0];
                         const startTime = getMilitaryTime(daysAndTimesArray[1]);
                         const endTime = getMilitaryTime(daysAndTimesArray[3]);
-                        
+
+                        const firstAndLastDatesArray = component
+                            .querySelector(FIRST_AND_LAST_DATES_SELECTOR)
+                            .innerText
+                            .split(" - ");
+                        const firstDate = firstAndLastDatesArray[0];
+                        const lastDate = firstAndLastDatesArray[1];
+
                         const days = {
                             sunday: daysString.includes("Su"),
                             monday: daysString.includes("Mo"),
@@ -87,15 +95,6 @@
 
                         const instructor = component.querySelector(INSTRUCTOR_SELECTOR).innerText;
 
-                        const startAndEndDatesArray =
-                            component.querySelector(START_AND_END_DATES_SELECTOR)
-                                .innerText
-                                .split(" - ");
-                        const startDateString = startAndEndDatesArray[0];
-                        const endDateString = startAndEndDatesArray[1];
-
-                        const startDate = new Date(startDateString);
-                        const endDate = new Date(endDateString);
 
                         classes.push({
                             classNumber: classNumber,
@@ -105,10 +104,10 @@
                             days: days,
                             startTime: startTime,
                             endTime: endTime,
+                            firstDate: firstDate,
+                            lastDate: lastDate,
                             room: room,
                             instructor: instructor,
-                            startDate: startDate,
-                            endDate: endDate
                         });
                     }
         )});
@@ -134,10 +133,10 @@
         const hour = parseInt(timeArr[0]);
         const minute = timeArr[1].substring(0, timeArr[1].length - 2);
 
-        if (timeString.includes('PM') && hour != 12) 
-            return (hour + 12) + ':' + minute;
-        else if (timeString.includes('AM') && (hour < 10 || hour == 12))
-            return '0' + (hour % 12) + ':' + minute;
+        if (timeString.includes('PM')) 
+            return ((hour % 12) + 12) + ':' + minute;
+        else if (timeString.includes('AM'))
+            return ((hour % 12) + ':' + minute).padStart(5, '0');
         else
             return hour + ':' + minute;
     }

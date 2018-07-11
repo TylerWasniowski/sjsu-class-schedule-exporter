@@ -5,7 +5,7 @@
   "permissions": ["activeTab", "declarativeContent", "storage",
     "identity", "https://accounts.google.com/*", "https://www.googleapis.com/*"],
   "background": {
-    "scripts": ["background.js", "options.js"],
+    "scripts": ["background.js", "options.js", "moment.min.js", "moment-timezone.min.js"],
     "persistent": false
   },
   "content_scripts": [

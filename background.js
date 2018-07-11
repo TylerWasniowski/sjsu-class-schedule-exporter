@@ -47,6 +47,11 @@ function createClassEvent(calendar, classObj) {
   console.log('create event function');
   console.log(classObj);
 
+  const startTime = moment.tz(classObj.firstDate + ' ' + classObj.startTime,
+    'MM-DD-YYYY HH:mm', 'America/Los_Angeles');
+  const endTime = moment.tz(classObj.firstDate + ' ' + classObj.endTime,
+    'MM-DD-YYYY HH:mm', 'America/Los_Angeles');
+
   const eventData = {
     summary: classObj.className + " - " + classObj.componentName,
     description: 
@@ -55,27 +60,39 @@ function createClassEvent(calendar, classObj) {
       "Class Number: " + classObj.classNumber
     ,
     start: {
-      dateTime: '',
-      timeZone: 'PST'
+      dateTime: startTime.utc().format(),
+      timeZone: 'UTC'
     },
     end: {
-      dateTime: '',
-      timeZone: 'PST'
+      dateTime: endTime.utc().format(),
+      timeZone: 'UTC'
     },
     recurrence: [
-
+      'RRULE:' +
+        'FREQ=WEEKLY;' + 
+        'UNTIL=' + moment(classObj.lastDate).add({days: 1}).format('YYYYMMDD') + ';' +
+        'BYDAY=' +
+          (
+            (classObj.days.sunday ? 'SU,' : '') +
+            (classObj.days.monday ? 'MO,' : '') +
+            (classObj.days.tuesday ? 'TU,' : '') +
+            (classObj.days.wednesday ? 'WE,' : '') +
+            (classObj.days.thursday ? 'TH,' : '') +
+            (classObj.days.friday ? 'FR,' : '') +
+            (classObj.days.saturday ? 'SA,' : '')
+          ).slice(0, -1) + ';'
     ],
     location: classObj.room
   };
 
   console.log(eventData);
 
-  // makeRequest('POST',
-  //   '/calendars/' + calendar.id + '/events',
-  //   JSON.stringify(eventData),
-  //   (response) => {
-  //     alert(response);
-  //   });
+  makeRequest('POST',
+    '/calendars/' + calendar.id + '/events',
+    JSON.stringify(eventData),
+    (response) => {
+      console.log('created event');
+    });
 }
 
 // Creates the Calendar if it does not exist, calls callback with calendar

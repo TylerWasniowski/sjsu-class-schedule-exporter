@@ -1,6 +1,6 @@
 {
   "name": "SJSU Schedule Exporter",
-  "version": "1.0",
+  "version": "0.0.0.1",
   "description": "Exports SJSU class and final schedule to Google Calendar.",
   "permissions": ["activeTab", "declarativeContent", "storage",
     "identity", "https://accounts.google.com/*", "https://www.googleapis.com/*"],

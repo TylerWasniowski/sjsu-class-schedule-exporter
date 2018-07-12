@@ -17,8 +17,7 @@
     const DAYS_AND_TIMES_SELECTOR = "div[id ^= 'win1divMTG_SCHED\\24 '] > span";
     const ROOM_SELECTOR = "div[id ^= 'win1divMTG_LOC\\24 '] > span";
     const INSTRUCTOR_SELECTOR = "div[id ^= 'win1divDERIVED_CLS_DTL_SSR_INSTR_LONG\\24 '] > span";
-    const FIRST_AND_LAST_DATES_SELECTOR = "div[id ^= 'win1divMTG_DATES\\24 '] > span";
-
+    const START_AND_END_DATES_SELECTOR = "div[id ^= 'win1divMTG_DATES\\24 '] > span";
 
     attachButton();
     // Attach button again if page changes.
@@ -74,12 +73,12 @@
                         const startTime = getMilitaryTime(daysAndTimesArray[1]);
                         const endTime = getMilitaryTime(daysAndTimesArray[3]);
 
-                        const firstAndLastDatesArray = component
-                            .querySelector(FIRST_AND_LAST_DATES_SELECTOR)
+                        const startAndEndDatesArray = component
+                            .querySelector(START_AND_END_DATES_SELECTOR)
                             .innerText
                             .split(" - ");
-                        const firstDate = firstAndLastDatesArray[0];
-                        const lastDate = firstAndLastDatesArray[1];
+                        const startDate = startAndEndDatesArray[0];
+                        const endDate = startAndEndDatesArray[1];
 
                         const days = {
                             sunday: daysString.includes("Su"),
@@ -104,8 +103,8 @@
                             days: days,
                             startTime: startTime,
                             endTime: endTime,
-                            firstDate: firstDate,
-                            lastDate: lastDate,
+                            startDate: startDate,
+                            endDate: endDate,
                             room: room,
                             instructor: instructor,
                         });

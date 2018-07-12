@@ -8,7 +8,7 @@ const CLASS_SCHEDULE_URL = "https://cmsweb.cms.sjsu.edu/psc/CSJPRD_1/EMPLOYEE/SA
 
 let classScheduleButton = document.getElementById('classScheduleButton');
 classScheduleButton.onclick = (element) => {
-  chrome.tabs.query({'active': true}, (tabs) => {
+  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
     chrome.tabs.update(tabs[0].id, {url: CLASS_SCHEDULE_URL});
   });
 };

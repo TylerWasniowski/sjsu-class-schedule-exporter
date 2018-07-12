@@ -11,7 +11,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://cmsweb.cms.sjsu.edu/*"],
+      "matches": ["https://cmsweb.cms.sjsu.edu/psc/CSJPRD*/EMPLOYEE/SA/c/SA_LEARNER_SERVICES.SSR_SSENRL_LIST.GBL*"],
       "js": ["content.js"]
     }
   ],

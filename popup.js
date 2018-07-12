@@ -4,7 +4,7 @@
 
 'use strict';
 
-const CLASS_SCHEDULE_URL = "https://cmsweb.cms.sjsu.edu/psc/CSJPRD_1/EMPLOYEE/SA/c/SA_LEARNER_SERVICES.SSR_SSENRL_LIST.GBL";
+const CLASS_SCHEDULE_URL = "https://cmsweb.cms.sjsu.edu/psc/CSJPRD/EMPLOYEE/SA/c/SA_LEARNER_SERVICES.SSR_SSENRL_LIST.GBL";
 
 let classScheduleButton = document.getElementById('classScheduleButton');
 classScheduleButton.onclick = (element) => {

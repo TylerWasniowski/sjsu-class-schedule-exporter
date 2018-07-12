@@ -3,21 +3,21 @@
     const EXPORT_CLASSES_BUTTON_ID = "exportClassesButton";
 
 
-    const PAGE_CONTAINER_SELECTOR = "#win1divPAGECONTAINER";
+    const PAGE_CONTAINER_SELECTOR = "div[id *= 'divPAGECONTAINER']";
     
-    const CLASSES_CONTAINER_SELECTOR = "div[id ^= 'win1divSTDNT_ENRL_SSV2\\24 ']";
+    const CLASSES_CONTAINER_SELECTOR = "div[id *= 'divSTDNT_ENRL_SSV2\\24 ']";
 
-    const CLASS_CONTAINER_SELECTOR = "div[id ^= 'win1divDERIVED_REGFRM1_DESCR20\\24 ']";
+    const CLASS_CONTAINER_SELECTOR = "div[id *= 'divDERIVED_REGFRM1_DESCR20\\24 ']";
     const CLASS_NAME_SELECTOR = "table > tbody > tr > td";
 
-    const COMPONENT_SELECTOR = "table[id ^= 'CLASS_MTG_VW\\24 scroll\\24 '] > tbody > tr > td > table > tbody > tr";
-    const CLASS_NUMBER_SELECTOR = "div[id ^= 'win1divDERIVED_CLS_DTL_CLASS_NBR\\24 '] > span";
-    const SECTION_SELECTOR = "div[id ^= 'win1divMTG_SECTION\\24 '] > span";
-    const COMPONENT_NAME_SELECTOR = "div[id ^= 'win1divMTG_COMP\\24 '] > span";
-    const DAYS_AND_TIMES_SELECTOR = "div[id ^= 'win1divMTG_SCHED\\24 '] > span";
-    const ROOM_SELECTOR = "div[id ^= 'win1divMTG_LOC\\24 '] > span";
-    const INSTRUCTOR_SELECTOR = "div[id ^= 'win1divDERIVED_CLS_DTL_SSR_INSTR_LONG\\24 '] > span";
-    const START_AND_END_DATES_SELECTOR = "div[id ^= 'win1divMTG_DATES\\24 '] > span";
+    const COMPONENT_SELECTOR = "table[id *= 'CLASS_MTG_VW\\24 scroll\\24 '] > tbody > tr > td > table > tbody > tr";
+    const CLASS_NUMBER_SELECTOR = "div[id *= 'divDERIVED_CLS_DTL_CLASS_NBR\\24 '] > span";
+    const SECTION_SELECTOR = "div[id *= 'divMTG_SECTION\\24 '] > span";
+    const COMPONENT_NAME_SELECTOR = "div[id *= 'divMTG_COMP\\24 '] > span";
+    const DAYS_AND_TIMES_SELECTOR = "div[id *= 'divMTG_SCHED\\24 '] > span";
+    const ROOM_SELECTOR = "div[id *= 'divMTG_LOC\\24 '] > span";
+    const INSTRUCTOR_SELECTOR = "div[id *= 'divDERIVED_CLS_DTL_SSR_INSTR_LONG\\24 '] > span";
+    const START_AND_END_DATES_SELECTOR = "div[id *= 'divMTG_DATES\\24 '] > span";
 
     attachButton();
     // Attach button again if page changes.

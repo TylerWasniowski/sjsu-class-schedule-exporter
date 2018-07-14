@@ -33,7 +33,7 @@ function createClassEvent(calendar, classObj) {
   console.log(classObj);
 
   const startDate = moment(classObj.startDate, 'MM-DD-YYYY');
-  const endDate = moment(classObj.endDate, 'MM-DD-YYYY')
+  const endDate = moment(classObj.endDate, 'MM-DD-YYYY');
 
   const firstDate = getFirstDate(startDate, classObj.days);
   const startTime = moment.tz(firstDate.format('MM-DD-YYYY') + ' ' + classObj.startTime,

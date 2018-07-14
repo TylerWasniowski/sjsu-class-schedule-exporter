@@ -1,4 +1,6 @@
 (function () {
+    const DOCUMENT_TITLE_SELECTOR = 'h3';
+
     const TABLE_SELECTOR = '.info_table';
 
     const GROUPI_NAME = 'groupI';
@@ -139,6 +141,15 @@
             )[0];
     }
 
+    function getSemester() {
+        return document
+            .querySelector(DOCUMENT_TITLE_SELECTOR)
+            .innerText
+            .split(' - ')[1]
+            .replace(' ', '')
+            .toLowerCase()
+    }
+
     // Function taken from: https://stackoverflow.com/a/18197341
     function download(filename, text) {
         var element = document.createElement('a');
@@ -155,7 +166,7 @@
 
     loadMoment();
     download(
-        'finalExamData.json',
+        getSemester() + '.json',
         JSON.stringify({
             groupIPattern: GROUPI_PATTERN,
             groupExamTimes: getGroups()

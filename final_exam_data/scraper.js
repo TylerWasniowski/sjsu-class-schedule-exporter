@@ -155,7 +155,7 @@
 
     loadMoment();
     download(
-        'examGroups.json',
+        'finalExamData.json',
         JSON.stringify({
             groupIPattern: GROUPI_PATTERN,
             groupExamTimes: getGroups()

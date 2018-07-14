@@ -2,8 +2,9 @@
     const EXPORT_CLASSES_BUTTON_TEXT = "Export Classes";
     const EXPORT_CLASSES_BUTTON_ID = "exportClassesButton";
 
-
     const PAGE_CONTAINER_SELECTOR = "div[id *= 'divPAGECONTAINER']";
+
+    const SCHEDULE_TITLE_SELECTOR = "#DERIVED_REGFRM1_SSR_STDNTKEY_DESCR\\24 11\\24 ";
     
     const CLASSES_CONTAINER_SELECTOR = "div[id *= 'divSTDNT_ENRL_SSV2\\24 ']";
 
@@ -41,7 +42,7 @@
 
         // Returns false to prevent refresh.
         exportClassesButton.onclick = () => {
-            exportClasses();
+            exportSchedule();
             return false;
         };
 
@@ -115,15 +116,29 @@
     }
 
     // Sends the classes to extension background for exporting.
-    function exportClasses() {
-        console.log("Sending export message with classes:");
-        console.log(findClasses());
+    function exportSchedule() {
+        const schedule =
+        {
+            semester: getSemester(),
+            classes: findClasses()
+        }
+        console.log("Sending export message with schedule:");
+        console.log(schedule);
 
         chrome.runtime.sendMessage(
-            {classes: findClasses()},
+            { schedule: schedule },
             (response) => {
                 console.log(response);
         });
+    }
+
+    function getSemester() {
+        return document
+            .querySelector(SCHEDULE_TITLE_SELECTOR)
+            .innerText
+            .split(' | ', 1)[0]
+            .replace(' ', '')
+            .toLowerCase();
     }
 
     function getMilitaryTime(timeString) {
@@ -132,7 +147,7 @@
         const hour = parseInt(timeArr[0]);
         const minute = timeArr[1].substring(0, timeArr[1].length - 2);
 
-        if (timeString.includes('PM')) 
+        if (timeString.includes('PM'))
             return ((hour % 12) + 12) + ':' + minute;
         else if (timeString.includes('AM'))
             return ((hour % 12) + ':' + minute).padStart(5, '0');

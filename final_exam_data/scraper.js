@@ -51,6 +51,7 @@
             friday: true
         }
     ];
+    const LATE_CLASSES_START_TIME = '17:30';
 
 
     function getGroups() {
@@ -169,7 +170,8 @@
         getSemester() + '.json',
         JSON.stringify({
             groupIPattern: GROUPI_PATTERN,
-            groupExamTimes: getGroups()
+            lateClassesStartTime: LATE_CLASSES_START_TIME,
+            groups: getGroups()
         })
     );
 

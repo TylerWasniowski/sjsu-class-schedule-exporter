@@ -1,12 +1,16 @@
 (function() {
+    const TABLE_SELECTOR = '.info_table';
+
     const GROUPI_NAME = 'groupI';
     const GROUPII_NAME = 'groupII';
     const LATE_AFTERNOON_GROUP_NAME = 'lateAfternoon';
     const NIGHT_GROUP_NAME = 'night';
 
-    function getGroups() {
-        const TABLE_SELECTOR = '.info_table';
+    const NIGHT_CLASS_TIME = '18:30';
 
+    
+
+    function getGroups() {
         const tables = Array
             .from(document.querySelectorAll(TABLE_SELECTOR))   
             .slice(0, 4);
@@ -14,8 +18,7 @@
         return {
             groupI: getGroupExamInfo(tables[0], GROUPI_NAME),
             groupII: getGroupExamInfo(tables[1], GROUPII_NAME),
-            lateAfternoon: getGroupExamInfo(tables[2], LATE_AFTERNOON_GROUP_NAME),
-            night: getGroupExamInfo(tables[3], NIGHT_GROUP_NAME)
+            late: getGroupExamInfo(tables[2], LATE_AFTERNOON_GROUP_NAME).concat(getGroupExamInfo(tables[3], NIGHT_GROUP_NAME))
         };
     }
 
@@ -40,21 +43,24 @@
         const classStartTimes = classStartFunction(cells[0]);
         const examTimes = cells[2]
             .innerText
-            .split('-')
-            .map(addColon);
+            .split('-');
         const examDay = cells[1]
             .innerText
             .split(', ')[1];
         
-        const examStartDateObj = moment.tz(examDay + ' ' + examTimes[0],
-        'MMMM DD HH:mm', 'America/Los_Angeles');
-        const examEndDateObj = moment.tz(examDay + ' ' + examTimes[1],
-        'MMMM DD HH:mm', 'America/Los_Angeles');
+        const examStartDateTime = moment
+            .tz(examDay + ' ' + examTimes[0], 'MMMM DD HHmm', 'America/Los_Angeles')
+            .utc()
+            .format();
+        const examEndDateTime = moment
+            .tz(examDay + ' ' + examTimes[1], 'MMMM DD HHmm', 'America/Los_Angeles')
+            .utc()
+            .format();
 
         return {
             classStartTimes: classStartTimes,
-            examStartDateTime: examStartDateObj.format(),
-            examEndDateTime: examEndDateObj.format()
+            examStartDateTime: examStartDateTime,
+            examEndDateTime: examEndDateTime
         };
     }
 
@@ -64,7 +70,9 @@
             .split('*')
             .join('')
             .split(' or ')
-            .map(addColon);
+            .map((time) =>
+                moment(time, 'HHmm').format('HH:mm')
+            );
     }
 
     function getLateAfternoonClassStart(td) {
@@ -72,24 +80,40 @@
             .innerText
             .split(new RegExp(' or |-'));
 
-        return {
-            startTimes: startArr.slice(0, 2).map(addColon),
-            startDay: startArr[2]
-        };
+        return startArr
+            .slice(0, 2)
+            .map((time) =>
+                moment(startArr[2] + ' ' + time, 'dddd HHmm').format('E HH:mm')
+            );
     }
 
     function getNightClassStart(td) {
         return td
             .innerText
-            .split(' ', 1)[0];
+            .split(' ', 1)
+            .map((day) =>
+                [moment(day, 'dddd').format('E') + ' ' + NIGHT_CLASS_TIME,
+                moment(day, 'dddd').endOf('day').format('E HH:mm')]
+            )[0];
     }
 
-    function addColon(timeFourDigit) {
-        return timeFourDigit.slice(0, 2) + ':' + timeFourDigit.slice(2);
-    }
+    // Function taken from: https://stackoverflow.com/a/18197341
+    function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+      
+        element.style.display = 'none';
+        document.body.appendChild(element);
+      
+        element.click();
+      
+        document.body.removeChild(element);
+      }
 
     loadMoment();
     console.log(getGroups());
+    download('examGroups.json', JSON.stringify(getGroups()));
 
     function loadMoment() {
         // Load basic moment

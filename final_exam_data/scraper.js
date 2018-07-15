@@ -125,21 +125,24 @@
             .innerText
             .split(new RegExp(' or |-'));
 
-        return startArr
-            .slice(0, 2)
-            .map((time) =>
-                moment(startArr[2] + ' ' + time, 'dddd HHmm').format('E HH:mm')
-            );
+        return {
+            dayOfWeek: moment(startArr[2], 'dddd').format('E'),
+            times: startArr
+                .slice(0, 2)
+                .map((time) => moment(time, 'HHmm').format('HH:mm'))
+        };
     }
 
     function getNightClassStart(td) {
         return td
             .innerText
             .split(' ', 1)
-            .map((day) =>
-                [moment(day, 'dddd').format('E') + ' ' + NIGHT_CLASS_TIME,
-                moment(day, 'dddd').endOf('day').format('E HH:mm')]
-            )[0];
+            .map((day) => {
+                return {
+                    dayOfWeek: moment(day, 'dddd').format('E'),
+                    times:  [NIGHT_CLASS_TIME, moment().endOf('day').format('HH:mm')]
+                };
+            })[0];
     }
 
     function getSemester() {

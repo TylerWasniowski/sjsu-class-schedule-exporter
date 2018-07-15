@@ -110,7 +110,7 @@
     }
 
     function getRegularClassStart(td) {
-        return td
+        const times = td
             .innerText
             .split('*')
             .join('')
@@ -118,6 +118,11 @@
             .map((time) =>
                 moment(time, 'HHmm').format('HH:mm')
             );
+
+        return {
+            timeRangeStart: times[0],
+            timeRangeEnd: times[1]
+        };
     }
 
     function getLateAfternoonClassStart(td) {
@@ -131,8 +136,8 @@
         
         return {
             dayOfWeek: moment(startArr[2], 'dddd').format('E'),
-            startTime: times[0],
-            endTime: times[1] 
+            timeRangeStart: times[0],
+            timeRangeEnd: times[1] 
         };
     }
 
@@ -143,8 +148,8 @@
             .map((day) => {
                 return {
                     dayOfWeek: moment(day, 'dddd').format('E'),
-                    startTime: NIGHT_CLASS_TIME,
-                    endTime: moment().endOf('day').format('HH:mm')
+                    timeRangeStart: NIGHT_CLASS_TIME,
+                    timeRangeEnd: moment().endOf('day').format('HH:mm')
                 };
             })[0];
     }

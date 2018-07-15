@@ -28,7 +28,7 @@ function exportSchedule(schedule) {
         getFinalExamData(
             schedule.semester,
             (finalExamData) => {
-                schedule.class.forEach((classObj) => {
+                schedule.classes.forEach((classObj) => {
                     createFinalExamEvent(calendar, classObj, finalExamData);
                 })
             }
@@ -41,17 +41,21 @@ function exportSchedule(schedule) {
 }
 
 function createClassEvent(calendar, classObj) {
-    console.log('create event function');
-    console.log(classObj);
+    // console.log('create class event function');
+    // console.log(classObj);
 
-    const startDate = moment(classObj.startDate, 'MM-DD-YYYY');
+    const startDateObj = moment(classObj.startDate, 'MM-DD-YYYY');
     const endDate = moment(classObj.endDate, 'MM-DD-YYYY');
 
-    const firstDate = getFirstDate(startDate, classObj.days);
-    const startTime = moment.tz(firstDate.format('MM-DD-YYYY') + ' ' + classObj.startTime,
-        'MM-DD-YYYY HH:mm', 'America/Los_Angeles');
-    const endTime = moment.tz(firstDate.format('MM-DD-YYYY') + ' ' + classObj.endTime,
-        'MM-DD-YYYY HH:mm', 'America/Los_Angeles');
+    const firstDateObj = getFirstDate(startDateObj, classObj.days);
+    const startTime = moment.tz(firstDateObj.format('MM-DD-YYYY') + ' ' + classObj.startTime,
+        'MM-DD-YYYY HH:mm', 'America/Los_Angeles')
+        .utc()
+        .format();
+    const endTime = moment.tz(firstDateObj.format('MM-DD-YYYY') + ' ' + classObj.endTime,
+        'MM-DD-YYYY HH:mm', 'America/Los_Angeles')
+        .utc()
+        .format();
 
     const eventData = {
         summary: classObj.className + " - " + classObj.componentName,
@@ -60,11 +64,11 @@ function createClassEvent(calendar, classObj) {
             "Class Number: " + classObj.classNumber,
         location: classObj.room,
         start: {
-            dateTime: startTime.utc().format(),
+            dateTime: startTime,
             timeZone: 'UTC'
         },
         end: {
-            dateTime: endTime.utc().format(),
+            dateTime: endTime,
             timeZone: 'UTC'
         },
         recurrence: [
@@ -87,19 +91,76 @@ function createClassEvent(calendar, classObj) {
         ]
     };
 
+    // console.log(eventData);
+
+    // makeRequest('POST',
+    //     '/calendars/' + calendar.id + '/events',
+    //     JSON.stringify(eventData),
+    //     (response) => {
+    //         console.log('created event');
+    //     });
+}
+
+function createFinalExamEvent(calendar, classObj, finalExamData) {
+    console.log('create class event function');
+    console.log('class:')
+    console.log(classObj);
+
+    const groupName = getFinalExamGroupName(classObj, finalExamData);
+    const group = finalExamData.groups[groupName];
+
+    const classStartTimeObj = moment(classObj.startTime, 'HH:mm');
+
+    let examInfo;
+    if (groupName == 'groupI' || groupName == 'groupII') {
+        examInfo = group.find((examInfo) =>
+            classStartTimeObj.isBetween(
+                moment(examInfo.classStartTimes.timeRangeStart, 'HH:mm'),
+                moment(examInfo.classStartTimes.timeRangeEnd, 'HH:mm'),
+                null,
+                '[]'
+            )
+        );
+    } else {
+        examInfo = group.find((examInfo) => {
+            // The day of the week for which this examInfo applies
+            const classStartDay = moment(examInfo.classStartTimes.dayOfWeek, 'E').format('dddd');
+
+            return classObj.days[classStartDay] &&
+                classStartTimeObj.isBetween(
+                    moment(examInfo.classStartTimes.timeRangeStart, 'HH:mm'),
+                    moment(examInfo.classStartTimes.timeRangeEnd, 'HH:mm'),
+                    null,
+                    '[]'
+                );
+        });
+    }
+
+    const eventData = {
+        summary: 'FINAL EXAM: ' + classObj.className + " - " + classObj.componentName,
+        description: "Instructor: " + classObj.instructor + "\n" +
+            "Section: " + classObj.section + "\n" +
+            "Class Number: " + classObj.classNumber,
+        location: classObj.room,
+        start: {
+            dateTime: examInfo.examStartDateTime,
+            timeZone: 'UTC'
+        },
+        end: {
+            dateTime: examInfo.examEndDateTime,
+            timeZone: 'UTC'
+        }
+    };
+
+    console.log('Final exam eventData:');
     console.log(eventData);
 
     makeRequest('POST',
         '/calendars/' + calendar.id + '/events',
         JSON.stringify(eventData),
         (response) => {
-            console.log('created event');
+            console.log('created final exam event');
         });
-}
-
-function createFinalExamEvent(calendar, classObj, finalExamData) {
-
-
 }
 
 // Creates the Calendar if it does not exist, calls callback with calendar
@@ -108,15 +169,11 @@ function ensureCalendar(callback) {
     makeRequest('GET', '/users/me/calendarList', null, (response) => {
         response = JSON.parse(response);
 
-        // Calendar already exists
-        if (response.items.some((calendar) => {
-                calendar.summary == CALENDAR_NAME
-            })) {
+        const calendar = response.items.find((calendar) => calendar.summary == CALENDAR_NAME);
+        if (calendar)
             callback(calendar);
-            return;
-        }
-
-        createCalendar(callback);
+        else
+            createCalendar(callback);
     });
 }
 
@@ -126,8 +183,9 @@ function createCalendar(callback) {
         summary: CALENDAR_NAME
     };
 
+    console.log('Creating Calendar.');
     makeRequest('POST', '/calendars', JSON.stringify(options), (response) => {
-        console.log('Calendar created');
+        console.log('Calendar created.');
         const calendar = JSON.parse(response);
         callback(calendar);
     })
@@ -191,25 +249,24 @@ function getFinalExamData(semester, callback) {
         );
 }
 
-function getFinalExamGroup(classObj, finalExamData) {
+function getFinalExamGroupName(classObj, finalExamData) {
     if (
         moment(classObj.startTime, 'HH:mm')
-        .isSameOrAfter(moment(finalExamData.lateClassesStartTime, 'HH:mm'), 'minute')
+        .isSameOrAfter(moment(finalExamData.lateClassesStartTime, 'HH:mm'))
     )
-        return finalExamData.groups.lateClasses;
-    else if (finalExamData.groupIPattern.find((pattern) => isPatternMatching(pattern, days)))
-        return finalExamData.groups.groupI;
+        return 'lateClasses';
+    else if (finalExamData.groupIPattern.find((pattern) => isPatternMatching(pattern, classObj.days)))
+        return 'groupI';
     else
-        return finalExamData.groups.groupII;
+        return 'groupII';
 }
 
 // Returns true if days matches the given pattern, false if not.
 // See final_exam_data\scraper for more info.
 function isPatternMatching(pattern, days) {
-    Object.keys(pattern)
-        .forEach((day) => {
-            if (pattern[day] != days[day])
-                return false;
-        });
-    return true;
+    return !(
+        Object
+        .keys(pattern)
+        .some((day) => pattern[day] != days[day])
+    );
 }

@@ -126,7 +126,9 @@ function createFinalExamEvent(calendar, classObj, finalExamData) {
     } else {
         examInfo = group.find((examInfo) => {
             // The day of the week for which this examInfo applies
-            const classStartDay = moment(examInfo.classStartTimes.dayOfWeek, 'E').format('dddd');
+            const classStartDay = moment(examInfo.classStartTimes.dayOfWeek, 'E')
+                .format('dddd')
+                .toLowerCase();
 
             return classObj.days[classStartDay] &&
                 classStartTimeObj.isBetween(

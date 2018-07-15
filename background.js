@@ -41,8 +41,9 @@ function exportSchedule(schedule) {
 }
 
 function createClassEvent(calendar, classObj) {
-    // console.log('create class event function');
-    // console.log(classObj);
+    console.log('Create class event function');
+    console.log('Class:')
+    console.log(classObj);
 
     const startDateObj = moment(classObj.startDate, 'MM-DD-YYYY');
     const endDate = moment(classObj.endDate, 'MM-DD-YYYY');
@@ -91,14 +92,15 @@ function createClassEvent(calendar, classObj) {
         ]
     };
 
-    // console.log(eventData);
+    console.log('Class eventData:');
+    console.log(eventData);
 
-    // makeRequest('POST',
-    //     '/calendars/' + calendar.id + '/events',
-    //     JSON.stringify(eventData),
-    //     (response) => {
-    //         console.log('created event');
-    //     });
+    makeRequest('POST',
+        '/calendars/' + calendar.id + '/events',
+        JSON.stringify(eventData),
+        (response) => {
+            console.log('created event');
+        });
 }
 
 function createFinalExamEvent(calendar, classObj, finalExamData) {

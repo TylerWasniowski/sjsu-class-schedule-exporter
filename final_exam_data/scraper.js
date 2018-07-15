@@ -125,11 +125,14 @@
             .innerText
             .split(new RegExp(' or |-'));
 
+        const times = startArr
+            .slice(0, 2)
+            .map((time) => moment(time, 'HHmm').format('HH:mm'));
+        
         return {
             dayOfWeek: moment(startArr[2], 'dddd').format('E'),
-            times: startArr
-                .slice(0, 2)
-                .map((time) => moment(time, 'HHmm').format('HH:mm'))
+            startTime: times[0],
+            endTime: times[1] 
         };
     }
 
@@ -140,7 +143,8 @@
             .map((day) => {
                 return {
                     dayOfWeek: moment(day, 'dddd').format('E'),
-                    times:  [NIGHT_CLASS_TIME, moment().endOf('day').format('HH:mm')]
+                    startTime: NIGHT_CLASS_TIME,
+                    endTime: moment().endOf('day').format('HH:mm')
                 };
             })[0];
     }

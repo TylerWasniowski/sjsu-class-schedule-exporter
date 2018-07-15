@@ -1,10 +1,9 @@
 {
   "name": "SJSU Schedule Exporter",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAi2oQmoriFwlIP7WyByHQyoklRFEFZ9aott9F15JY6OwrpSRy3+7Mek/SiRDNMN5zlYkXUVdSiHrD1rSwugvKJ7zekoAO27+G/7dWha72eYTenDKXtkeQI39qmqm/3CpD4Yn8n1rmFeyVWOdhVVv7XTkm0h8jIMHERZI3H7VtaxGOTJNpWGDCcDX8Hct+uqdqs7JKtVtM8VdQEXnkwfRiZ0sQyhtgfuEhnGv2dWq9klmuv3LH8AiLWUrM5DLYS+X1IUE1w2pCn5Zrrx0xXIqkdoadvYKEut1QcW5fnoxiHY6fh7HqCDpgCXKuWMj/3Z+svL331Y4sIYsF6J4trlVsGwIDAQAB",
-  "version": "0.0.1.0",
+  "version": "0.0.1.1",
   "description": "Exports SJSU class and final schedule to Google Calendar.",
-  "permissions": ["activeTab", "declarativeContent", "storage",
-    "identity", "https://accounts.google.com/*", "https://www.googleapis.com/*"],
+  "permissions": ["activeTab", "storage", "identity"],
   "background": {
     "scripts": ["background.js", "options.js", "moment.min.js", "moment-timezone.min.js"],
     "persistent": false

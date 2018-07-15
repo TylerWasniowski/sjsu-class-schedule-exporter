@@ -51,11 +51,9 @@ function createClassEvent(calendar, classObj) {
     const firstDateObj = getFirstDate(startDateObj, classObj.days);
     const startTime = moment.tz(firstDateObj.format('MM-DD-YYYY') + ' ' + classObj.startTime,
         'MM-DD-YYYY HH:mm', 'America/Los_Angeles')
-        .utc()
         .format();
     const endTime = moment.tz(firstDateObj.format('MM-DD-YYYY') + ' ' + classObj.endTime,
         'MM-DD-YYYY HH:mm', 'America/Los_Angeles')
-        .utc()
         .format();
 
     const eventData = {
@@ -66,11 +64,11 @@ function createClassEvent(calendar, classObj) {
         location: classObj.room,
         start: {
             dateTime: startTime,
-            timeZone: 'UTC'
+            timeZone: 'America/Los_Angeles'
         },
         end: {
             dateTime: endTime,
-            timeZone: 'UTC'
+            timeZone: 'America/Los_Angeles'
         },
         recurrence: [
             'RRULE:' +

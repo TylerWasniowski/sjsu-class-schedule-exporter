@@ -1,7 +1,7 @@
 {
   "name": "SJSU Schedule Exporter",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAi2oQmoriFwlIP7WyByHQyoklRFEFZ9aott9F15JY6OwrpSRy3+7Mek/SiRDNMN5zlYkXUVdSiHrD1rSwugvKJ7zekoAO27+G/7dWha72eYTenDKXtkeQI39qmqm/3CpD4Yn8n1rmFeyVWOdhVVv7XTkm0h8jIMHERZI3H7VtaxGOTJNpWGDCcDX8Hct+uqdqs7JKtVtM8VdQEXnkwfRiZ0sQyhtgfuEhnGv2dWq9klmuv3LH8AiLWUrM5DLYS+X1IUE1w2pCn5Zrrx0xXIqkdoadvYKEut1QcW5fnoxiHY6fh7HqCDpgCXKuWMj/3Z+svL331Y4sIYsF6J4trlVsGwIDAQAB",
-  "version": "0.0.1.1",
+  "version": "0.0.2.0",
   "description": "Exports SJSU class and final schedule to Google Calendar.",
   "permissions": ["activeTab", "storage", "identity"],
   "background": {
@@ -10,7 +10,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://cmsweb.cms.sjsu.edu/psc/CSJPRD*/EMPLOYEE/SA/c/SA_LEARNER_SERVICES.SSR_SSENRL_LIST.GBL*"],
+      "matches": ["https://cmsweb.cms.sjsu.edu/ps*/CSJPRD*/EMPLOYEE/SA/c/SA_LEARNER_SERVICES.SSR_SSENRL_LIST.GBL*"],
       "js": ["content.js"]
     }
   ],

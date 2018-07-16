@@ -2,6 +2,8 @@
     const EXPORT_CLASSES_BUTTON_TEXT = "Export Classes";
     const EXPORT_CLASSES_BUTTON_ID = "exportClassesButton";
 
+    const CLASSES_IFRAME_SELECTOR = "#ptifrmtgtframe";
+
     const PAGE_CONTAINER_SELECTOR = "div[id *= 'divPAGECONTAINER']";
 
     const SCHEDULE_TITLE_SELECTOR = "#DERIVED_REGFRM1_SSR_STDNTKEY_DESCR\\24 11\\24 ";
@@ -20,19 +22,25 @@
     const INSTRUCTOR_SELECTOR = "div[id *= 'divDERIVED_CLS_DTL_SSR_INSTR_LONG\\24 '] > span";
     const START_AND_END_DATES_SELECTOR = "div[id *= 'divMTG_DATES\\24 '] > span";
 
-    attachButton();
-    // Attach button again if page changes.
-    const observer = new MutationObserver(attachButton);
-    observer.observe(
-        document.querySelector(PAGE_CONTAINER_SELECTOR),
-        { childList: true }
-    );
+    const iframe = document.querySelector(CLASSES_IFRAME_SELECTOR);
+    if (iframe)
+        iframe.addEventListener('load', () => persistButton(iframe.contentWindow.document));
+    else
+        persistButton(document);
 
-    function attachButton() {
-        if (!document.querySelector(CLASS_CONTAINER_SELECTOR))
+    // Attaches button again if page changes
+    function persistButton(doc) {
+        const page = doc.querySelector(PAGE_CONTAINER_SELECTOR);
+        attachButton(page);
+        const observer = new MutationObserver(() => attachButton(page));
+        observer.observe(page, { childList: true });
+    }
+
+    function attachButton(page) {
+        if (!page.querySelector(CLASS_CONTAINER_SELECTOR))
             return;
         
-        const classesContainer = document.querySelector(CLASSES_CONTAINER_SELECTOR);
+        const classesContainer = page.querySelector(CLASSES_CONTAINER_SELECTOR);
 
         const exportClassesButton = document.createElement("button");
         const exportClassesTextNode = document.createTextNode(EXPORT_CLASSES_BUTTON_TEXT);
@@ -42,17 +50,17 @@
 
         // Returns false to prevent refresh.
         exportClassesButton.onclick = () => {
-            exportSchedule();
+            exportSchedule(page);
             return false;
         };
 
         classesContainer.prepend(exportClassesButton);
     }
 
-    function findClasses() {
+    function findClasses(page) {
         let classes = [];
 
-        document.querySelectorAll(CLASS_CONTAINER_SELECTOR)
+        page.querySelectorAll(CLASS_CONTAINER_SELECTOR)
         .forEach(
             (classContainer) => {
                 const className = classContainer.querySelector(CLASS_NAME_SELECTOR).innerText;
@@ -116,11 +124,11 @@
     }
 
     // Sends the classes to extension background for exporting.
-    function exportSchedule() {
+    function exportSchedule(page) {
         const schedule =
         {
-            semester: getSemester(),
-            classes: findClasses()
+            semester: getSemester(page),
+            classes: findClasses(page)
         }
         console.log("Sending export message with schedule:");
         console.log(schedule);
@@ -132,8 +140,8 @@
         });
     }
 
-    function getSemester() {
-        return document
+    function getSemester(page) {
+        return page
             .querySelector(SCHEDULE_TITLE_SELECTOR)
             .innerText
             .split(' | ', 1)[0]

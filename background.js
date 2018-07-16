@@ -6,6 +6,7 @@
 
 const CALENDAR_NAME = "SJSU Schedule";
 
+const CALENDAR_API_BASE_URL = 'https://www.googleapis.com/calendar/v3';
 const FINAL_EXAM_DATA_BASE_URL = 'https://raw.githubusercontent.com/TylerWasniowski/sjsu-class-schedule-exporter/master/final_exam_data/';
 
 
@@ -97,13 +98,14 @@ function createClassEvent(calendar, classObj) {
         '/calendars/' + calendar.id + '/events',
         JSON.stringify(eventData),
         (response) => {
-            console.log('created event');
+            console.log('Created class event:');
+            console.log(response);
         });
 }
 
 function createFinalExamEvent(calendar, classObj, finalExamData) {
-    console.log('create class event function');
-    console.log('class:')
+    console.log('Create final exam event function');
+    console.log('Class:')
     console.log(classObj);
 
     const groupName = getFinalExamGroupName(classObj, finalExamData);
@@ -161,7 +163,8 @@ function createFinalExamEvent(calendar, classObj, finalExamData) {
         '/calendars/' + calendar.id + '/events',
         JSON.stringify(eventData),
         (response) => {
-            console.log('created final exam event');
+            console.log('Created final exam event:');
+            console.log(response);
         });
 }
 
@@ -169,8 +172,6 @@ function createFinalExamEvent(calendar, classObj, finalExamData) {
 function ensureCalendar(callback) {
     // Check if calendar exists
     makeRequest('GET', '/users/me/calendarList', null, (response) => {
-        response = JSON.parse(response);
-
         const calendar = response.items.find((calendar) => calendar.summary == CALENDAR_NAME);
         if (calendar)
             callback(calendar);
@@ -186,9 +187,8 @@ function createCalendar(callback) {
     };
 
     console.log('Creating Calendar.');
-    makeRequest('POST', '/calendars', JSON.stringify(options), (response) => {
+    makeRequest('POST', '/calendars', JSON.stringify(options), (calendar) => {
         console.log('Calendar created.');
-        const calendar = JSON.parse(response);
         callback(calendar);
     })
 }
@@ -203,14 +203,26 @@ function makeRequest(method, uri, body, callback) {
             return;
         }
 
-        let x = new XMLHttpRequest();
-        x.open(method, 'https://www.googleapis.com/calendar/v3' + uri);
-        x.setRequestHeader('Authorization', 'Bearer ' + token);
-        x.setRequestHeader('Content-Type', 'application/json');
-        x.onload = () => {
-            callback(x.response);
-        };
-        x.send(body);
+        let headers = new Headers();
+        headers.append('Authorization', 'Bearer ' + token);
+        headers.append('Content-Type', 'application/json');
+
+        fetch(
+            new Request(
+                CALENDAR_API_BASE_URL + uri,
+                {
+                    method: method,
+                    headers: headers,
+                    body: body
+        }))
+            .then(
+                (response) => response.json(),
+                (response) => {
+                    alert("Failed to make Google Calendar API request. See background console for more info.");
+                    console.error(response);
+                }
+            )
+            .then(callback);
     });
 }
 

@@ -16,7 +16,7 @@ chrome.runtime.onMessage.addListener(
         if (request.schedule && request.schedule.classes.length > 0) {
             exportSchedule(request.schedule);
             sendResponse('schedule_received');
-        } else if (request.schedule && request.classes.length == 0)
+        } else if (request.schedule && request.schedule.classes.length == 0)
             sendResponse('classes_empty');
         else
             sendResponse('no_schedule');
@@ -43,7 +43,7 @@ function exportSchedule(schedule) {
 
 function createClassEvent(calendar, classObj) {
     console.log('Create class event function');
-    console.log('Class:')
+    console.log('Class:');
     console.log(classObj);
 
     const startDateObj = moment(classObj.startDate, 'MM-DD-YYYY');
@@ -239,8 +239,9 @@ function getFirstDate(startDate, days) {
     ];
 
     for (let offset = 0; offset < daysArr.length; offset++) {
-        if (daysArr[startDate.days() + offset])
-            return moment(startDate).days(startDate.days() + offset);
+        const newDay = startDate.days() + offset;
+        if (daysArr[newDay % daysArr.length])
+            return moment(startDate).days(newDay);
     }
 }
 

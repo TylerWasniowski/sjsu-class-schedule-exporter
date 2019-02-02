@@ -23,22 +23,28 @@ chrome.runtime.onMessage.addListener(
     });
 
 function exportSchedule(schedule) {
-    console.log(schedule);
-    ensureCalendar((calendar) => {
-        // Get final exam data for given semester, then create final exam events
-        getFinalExamData(
-            schedule.semester,
-            (finalExamData) => {
-                schedule.classes.forEach((classObj) => {
-                    createFinalExamEvent(calendar, classObj, finalExamData);
-                })
-            }
-        );
+    const classEventPromises = [];
+    const finalExamEventPromises = [];
 
-        schedule.classes.forEach((classObj) => {
-            createClassEvent(calendar, classObj);
+    ensureCalendar()
+        .then((calendar) => {
+            schedule.classes.forEach((classObj) => {
+                classEventPromises.push(createClassEvent(calendar, classObj));
+            });
+
+            // Get final exam data for given semester, then create final exam events
+            getFinalExamData(schedule.semester)
+                .then((finalExamData) => {
+                    schedule.classes.forEach((classObj) => {
+                        finalExamEventPromises.push(createFinalExamEvent(calendar, classObj, finalExamData));
+                    });
+                });
         });
-    });
+    
+    Promise.all(classEventPromises)
+        .then(() => alert("All class events created successfully. They will appear in your Google Calendar."));
+    Promise.all(finalExamEventPromises)
+        .then(() => alert("All final exam events created successfully. They will appear in your Google Calendar."));
 }
 
 function createClassEvent(calendar, classObj) {
@@ -51,10 +57,10 @@ function createClassEvent(calendar, classObj) {
 
     const firstDateObj = getFirstDate(startDateObj, classObj.days);
     const startTime = moment.tz(firstDateObj.format('MM-DD-YYYY') + ' ' + classObj.startTime,
-        'MM-DD-YYYY HH:mm', 'America/Los_Angeles')
+            'MM-DD-YYYY HH:mm', 'America/Los_Angeles')
         .format();
     const endTime = moment.tz(firstDateObj.format('MM-DD-YYYY') + ' ' + classObj.endTime,
-        'MM-DD-YYYY HH:mm', 'America/Los_Angeles')
+            'MM-DD-YYYY HH:mm', 'America/Los_Angeles')
         .format();
 
     const eventData = {
@@ -94,10 +100,10 @@ function createClassEvent(calendar, classObj) {
     console.log('Class eventData:');
     console.log(eventData);
 
-    makeRequest('POST',
-        '/calendars/' + calendar.id + '/events',
-        JSON.stringify(eventData),
-        (response) => {
+    return makeRequest('POST',
+            '/calendars/' + calendar.id + '/events',
+            JSON.stringify(eventData))
+        .then((response) => {
             console.log('Created class event:');
             console.log(response);
         });
@@ -159,70 +165,86 @@ function createFinalExamEvent(calendar, classObj, finalExamData) {
     console.log('Final exam eventData:');
     console.log(eventData);
 
-    makeRequest('POST',
-        '/calendars/' + calendar.id + '/events',
-        JSON.stringify(eventData),
-        (response) => {
+    return makeRequest('POST',
+            '/calendars/' + calendar.id + '/events',
+            JSON.stringify(eventData))
+        .then((response) => {
             console.log('Created final exam event:');
             console.log(response);
         });
 }
 
-// Creates the Calendar if it does not exist, calls callback with calendar
-function ensureCalendar(callback) {
+// Creates the Calendar if it does not exist
+// returns a promise (containing the calendar if it resolves)
+function ensureCalendar() {
     // Check if calendar exists
-    makeRequest('GET', '/users/me/calendarList', null, (response) => {
-        const calendar = response.items.find((calendar) => calendar.summary == CALENDAR_NAME);
-        if (calendar)
-            callback(calendar);
-        else
-            createCalendar(callback);
+    return new Promise((resolve, reject) => {
+        makeRequest('GET', '/users/me/calendarList', null)
+            .then((response) => {
+                const calendar = response.items.find((calendar) => calendar.summary == CALENDAR_NAME);
+                if (calendar)
+                    resolve(calendar);
+                else
+                    createCalendar().then(resolve, reject);
+            });
     });
 }
 
-// Calls callback with created calendar
-function createCalendar(callback) {
+// Returns a promise (containing the calendar if it resolves)
+function createCalendar() {
     const options = {
         summary: CALENDAR_NAME
     };
 
     console.log('Creating Calendar.');
-    makeRequest('POST', '/calendars', JSON.stringify(options), (calendar) => {
-        console.log('Calendar created.');
-        callback(calendar);
-    })
+    return makeRequest('POST', '/calendars', JSON.stringify(options))
+        .then(
+            (calendar) => {
+                console.log('Calendar created.');
+                return calendar;
+            },
+            (error) => {
+                alert("Failed to create calendar. See background console for more info.");
+                console.error(error);
+            }
+        );
 }
 
-// Makes Google Calendar API request
-function makeRequest(method, uri, body, callback) {
-    chrome.identity.getAuthToken({
-        interactive: true
-    }, (token) => {
-        if (chrome.runtime.lastError) {
-            console.log(chrome.runtime.lastError.message);
-            return;
-        }
+// Makes Google Calendar API request, returns a promise
+function makeRequest(method, uri, body) {
+    return new Promise((resolve, reject) => {
+        chrome.identity.getAuthToken({
+            interactive: true
+        }, (token) => {
+            if (chrome.runtime.lastError) {
+                console.log(chrome.runtime.lastError.message);
+                reject(chrome.runtime.lastError);
+                return;
+            }
+            if (!token) {
+                reject('Failed to aquire auth token');
+                return;
+            }
 
-        let headers = new Headers();
-        headers.append('Authorization', 'Bearer ' + token);
-        headers.append('Content-Type', 'application/json');
+            let headers = new Headers();
+            headers.append('Authorization', 'Bearer ' + token);
+            headers.append('Content-Type', 'application/json');
 
-        fetch(
-            new Request(
-                CALENDAR_API_BASE_URL + uri,
-                {
+            fetch(CALENDAR_API_BASE_URL + uri, {
                     method: method,
                     headers: headers,
                     body: body
-        }))
-            .then(
-                (response) => response.json(),
-                (response) => {
-                    alert("Failed to make Google Calendar API request. See background console for more info.");
-                    console.error(response);
-                }
-            )
-            .then(callback);
+                })
+                .then(
+                    (response) => response.json(),
+                    (response) => {
+                        alert("Failed to make Google Calendar API request. See background console for more info.");
+                        console.error(response);
+                        reject(response);
+                    }
+                )
+                .then(resolve);
+        });
     });
 }
 
@@ -245,23 +267,23 @@ function getFirstDate(startDate, days) {
     }
 }
 
-// Calls the callback with the final exam data
-function getFinalExamData(semester, callback) {
-    fetch(FINAL_EXAM_DATA_BASE_URL + semester + '.json')
+// Returns a promise (containing the final exam data if it resolves)
+function getFinalExamData(semester) {
+    return fetch(FINAL_EXAM_DATA_BASE_URL + semester + '.json')
         .then(
-            (response) => response.json(),
+            (response) => {
+                try {
+                    return response.json();
+                } catch (error) {
+                    alert("Failed to parse final data. See background console for more info.");
+                    console.error(error);
+                }
+            },
             (response) => {
                 alert("Failed to get final data. See background console for more info.");
                 console.error(response);
             }
         )
-        .then(
-            callback,
-            (response) => {
-                alert("Failed to parse final data. See background console for more info.");
-                console.error(response);
-            }
-        );
 }
 
 function getFinalExamGroupName(classObj, finalExamData) {

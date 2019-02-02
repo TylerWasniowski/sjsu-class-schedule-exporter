@@ -66,12 +66,10 @@
             .forEach(
                 (classContainer) => {
                     const className = classContainer.querySelector(CLASS_NAME_SELECTOR).innerText;
-                    console.log(classContainer);
                     Array.from(classContainer.querySelectorAll(COMPONENT_SELECTOR))
                         .slice(1)
                         .forEach(
                             (component) => {
-                                console.log('hello');
                                 const componentName = component.querySelector(COMPONENT_NAME_SELECTOR).innerText;
 
                                 const classNumber = component.querySelector(CLASS_NUMBER_SELECTOR).innerText;
@@ -89,9 +87,6 @@
                                 const room = component.querySelector(ROOM_SELECTOR).innerText;
 
                                 const instructor = component.querySelector(INSTRUCTOR_SELECTOR).innerText;
-
-                                console.log(daysAndTimesString);
-                                console.log(startAndEndDatesString);
 
                                 if (
                                     !daysAndTimesString || !startAndEndDatesString ||
@@ -146,16 +141,15 @@
         const schedule = {
             semester: getSemester(pageContainer),
             classes: findClasses(pageContainer)
-        }
+        };
         console.log("Sending export message with schedule:");
         console.log(schedule);
 
         chrome.runtime.sendMessage({
                 schedule: schedule
             },
-            (response) => {
-                console.log(response);
-            });
+            console.log
+        );
     }
 
     function getSemester(pageContainer) {

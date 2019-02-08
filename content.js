@@ -127,7 +127,7 @@
                                     startDate: startDate,
                                     endDate: endDate,
                                     room: room,
-                                    instructor: instructor,
+                                    instructor: instructor
                                 });
                             }
                         )

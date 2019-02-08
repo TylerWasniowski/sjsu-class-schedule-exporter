@@ -32,19 +32,21 @@ function exportSchedule(schedule) {
                 classEventPromises.push(createClassEvent(calendar, classObj));
             });
 
+            Promise.all(classEventPromises)
+                .then(() => alert("All class events created successfully. They will appear in your Google Calendar."));
+
             // Get final exam data for given semester, then create final exam events
             getFinalExamData(schedule.semester)
                 .then((finalExamData) => {
                     schedule.classes.forEach((classObj) => {
                         finalExamEventPromises.push(createFinalExamEvent(calendar, classObj, finalExamData));
                     });
+                    Promise.all(finalExamEventPromises)
+                        .then(() => alert("All final exam events created successfully. They will appear in your Google Calendar."));
                 });
-        });
-    
-    Promise.all(classEventPromises)
-        .then(() => alert("All class events created successfully. They will appear in your Google Calendar."));
-    Promise.all(finalExamEventPromises)
-        .then(() => alert("All final exam events created successfully. They will appear in your Google Calendar."));
+            
+            
+        })
 }
 
 function createClassEvent(calendar, classObj) {
@@ -230,11 +232,7 @@ function makeRequest(method, uri, body) {
             headers.append('Authorization', 'Bearer ' + token);
             headers.append('Content-Type', 'application/json');
 
-            fetch(CALENDAR_API_BASE_URL + uri, {
-                    method: method,
-                    headers: headers,
-                    body: body
-                })
+            fetch(CALENDAR_API_BASE_URL + uri, { method, headers, body })
                 .then(
                     (response) => response.json(),
                     (response) => {

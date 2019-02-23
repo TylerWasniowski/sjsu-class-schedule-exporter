@@ -41,9 +41,8 @@
     function attachButton(pageContainer) {
         if (!pageContainer.querySelector(CLASS_CONTAINER_SELECTOR))
             return;
-
         const classesContainer = pageContainer.querySelector(CLASSES_CONTAINER_SELECTOR);
-
+        alert("hello");
         const exportClassesButton = document.createElement("button");
         const exportClassesTextNode = document.createTextNode(EXPORT_CLASSES_BUTTON_TEXT);
 

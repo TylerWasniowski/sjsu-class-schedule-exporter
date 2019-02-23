@@ -46,7 +46,7 @@ function exportSchedule(schedule) {
                 });
             
             
-        })
+        });
 }
 
 function createClassEvent(calendar, classObj) {
